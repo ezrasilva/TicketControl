@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model enterprise{
+  id   String @id @default(uuid())
+  name String
+  cnpj String
+  tickets ticket[]
+}
+
+model ticket {
+  id        String    @id @default(uuid())
+  codeBar    String  @unique
+  issuedAt DateTime 
+  paidAt DateTime? 
+  enterpriseId String
+  enterprise enterprise @relation(fields: [enterpriseId], references: [id])
+}
+
+model monthly_report{
+  id String @id @default(uuid())
+  month String @unique
+  total_spend Float 
+  spreadsheet spreadsheet?
+}
+
+model spreadsheet {
+  id       String @id @default(uuid())
+  name     String
+  data     Bytes    // Tipo Prisma equivalente a `bytea` no PostgreSQL
+  uploadedAt DateTime @default(now())
+  monthly_reportId String? @unique
+
+  monthly_report monthly_report? @relation(fields: [monthly_reportId], references: [id])
+
+  annual_reportId String? @unique
+  annual_report annual_report? @relation(fields: [annual_reportId], references: [id])
+}
+
+model annual_report{
+  id String @id @default(uuid())
+  year Int @unique
+  spreadsheet spreadsheet?
+}
