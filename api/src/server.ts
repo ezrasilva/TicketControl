@@ -1,20 +1,13 @@
 import Fastify from 'fastify';
+import { registerRoutes } from './routes';
 
-const fastify = Fastify({ logger: true });
+async function startServer() {
+  const fastify = Fastify({ logger: true });
 
-// Rota inicial
-fastify.get('/', async (request, reply) => {
-  return { message: 'Hello from Fastify + TypeScript!' };
-});
+  // Registrar as rotas
+  await registerRoutes(fastify);
 
-// Rota com parâmetros
-fastify.get('/greet/:name', async (request, reply) => {
-  const { name } = request.params as { name: string };
-  return { message: `Hello, ${name}!` };
-});
-
-// Iniciar o servidor
-const start = async () => {
+  // Iniciar o servidor
   try {
     await fastify.listen({ port: 3000 });
     console.log('Servidor rodando em http://localhost:3000');
@@ -22,6 +15,6 @@ const start = async () => {
     fastify.log.error(err);
     process.exit(1);
   }
-};
+}
 
-start();
+startServer();
