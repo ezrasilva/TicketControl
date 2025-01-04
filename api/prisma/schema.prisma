@@ -16,14 +16,15 @@ datasource db {
 model enterprise{
   id   String @id @default(uuid())
   name String
-  cnpj String
+  cnpj String @unique
   tickets ticket[]
 }
 
 model ticket {
   id        String    @id @default(uuid())
   codeBar    String  @unique
-  issuedAt DateTime 
+  value Float
+  expiresIn DateTime 
   paidAt DateTime? 
   enterpriseId String
   enterprise enterprise @relation(fields: [enterpriseId], references: [id])
@@ -32,6 +33,7 @@ model ticket {
 model monthly_report{
   id String @id @default(uuid())
   month String @unique
+  year Int 
   total_spend Float 
   spreadsheet spreadsheet?
 }
@@ -43,14 +45,15 @@ model spreadsheet {
   uploadedAt DateTime @default(now())
   monthly_reportId String? @unique
 
-  monthly_report monthly_report? @relation(fields: [monthly_reportId], references: [id])
+  monthly_report monthly_report? @relation(fields: [monthly_reportId], references: [id],onDelete: Cascade)
 
   annual_reportId String? @unique
-  annual_report annual_report? @relation(fields: [annual_reportId], references: [id])
+  annual_report annual_report? @relation(fields: [annual_reportId], references: [id], onDelete: Cascade)
 }
 
 model annual_report{
   id String @id @default(uuid())
   year Int @unique
+  total_spend Float
   spreadsheet spreadsheet?
 }
